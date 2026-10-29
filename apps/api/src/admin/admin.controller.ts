@@ -17,8 +17,29 @@ export class AdminController {
 
   @RequirePermissions('users:read')
   @Get('users')
-  async users(@Query(new ZodPipe(paginationSchema.extend({ q: z.string().max(100).optional() }))) q: any) {
-    const { total, items } = await this.admin.listUsers(q.q, q.pageSize, offsetOf(q));
+  async users(
+    @Query(new ZodPipe(paginationSchema.extend({ q: z.string().max(100).optional() })))
+    q: any,
+  ) {
+    const { total, items } = await this.admin.listUsers(
+      q.q,
+      q.pageSize,
+      offsetOf(q),
+    );
+    return pageOf(items, total, q);
+  }
+
+  // List vehicles waiting for approval
+  @RequirePermissions('verification:review')
+  @Get('vehicles/pending')
+  async pendingVehicles(
+    @Query(new ZodPipe(paginationSchema)) q: any,
+  ) {
+    const { total, items } = await this.admin.listPendingVehicles(
+      q.pageSize,
+      offsetOf(q),
+    );
+
     return pageOf(items, total, q);
   }
 
@@ -37,7 +58,11 @@ export class AdminController {
   @RequirePermissions('users:reinstate')
   @HttpCode(204)
   @Post('users/:id/reinstate')
-  reinstate(@CurrentUser() u: AuthUser, @Param('id', uuid) id: string, @Req() req: Request) {
+  reinstate(
+    @CurrentUser() u: AuthUser,
+    @Param('id', uuid) id: string,
+    @Req() req: Request,
+  ) {
     return this.admin.reinstate(u, id, req.ip);
   }
 
@@ -56,7 +81,11 @@ export class AdminController {
   @RequirePermissions('verification:review')
   @HttpCode(204)
   @Post('drivers/:userId/approve')
-  approveDriver(@CurrentUser() u: AuthUser, @Param('userId', uuid) id: string, @Req() req: Request) {
+  approveDriver(
+    @CurrentUser() u: AuthUser,
+    @Param('userId', uuid) id: string,
+    @Req() req: Request,
+  ) {
     return this.admin.reviewDriver(u, id, 'approve', undefined, req.ip);
   }
 
@@ -75,7 +104,11 @@ export class AdminController {
   @RequirePermissions('verification:review')
   @HttpCode(204)
   @Post('vehicles/:id/approve')
-  approveVehicle(@CurrentUser() u: AuthUser, @Param('id', uuid) id: string, @Req() req: Request) {
+  approveVehicle(
+    @CurrentUser() u: AuthUser,
+    @Param('id', uuid) id: string,
+    @Req() req: Request,
+  ) {
     return this.admin.reviewVehicle(u, id, 'approve', req.ip);
   }
 
@@ -94,9 +127,14 @@ export class AdminController {
   @RequirePermissions('audit:read')
   @Get('audit-logs')
   async audit(
-    @Query(new ZodPipe(paginationSchema.extend({ action: z.string().max(80).optional() }))) q: any,
+    @Query(new ZodPipe(paginationSchema.extend({ action: z.string().max(80).optional() })))
+    q: any,
   ) {
-    const { total, items } = await this.admin.auditLogs(q.pageSize, offsetOf(q), q.action);
+    const { total, items } = await this.admin.auditLogs(
+      q.pageSize,
+      offsetOf(q),
+      q.action,
+    );
     return pageOf(items, total, q);
   }
 
@@ -118,3 +156,4 @@ export class AdminController {
     return this.admin.updateSetting(u, key, b.value, req.ip);
   }
 }
+```
