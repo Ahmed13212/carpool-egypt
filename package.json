@@ -1,0 +1,28 @@
+{
+  "name": "carpool-egypt",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "npm run build -w apps/api",
+    "lint": "npm run lint -w apps/api",
+    "typecheck": "npm run typecheck -w apps/api",
+    "test": "npm run test -w apps/api",
+    "test:unit": "npm run test:unit -w apps/api",
+    "migrate": "npm run migrate -w apps/api",
+    "seed": "npm run seed -w apps/api",
+    "web:start": "node apps/web/server.cjs",
+    "dev:all": "npm run build && npm run web:start"
+  },
+  "overrides": {
+    "@nestjs/platform-express": {
+      "multer": "2.5.0"
+    }
+  }
+}

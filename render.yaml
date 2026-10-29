@@ -1,0 +1,34 @@
+# Render Blueprint for سِكّة (API + PostgreSQL/PostGIS)
+# Review the plan/costs in Render before creating resources.
+services:
+  - type: web
+    name: sekka-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm ci && npm run build
+    startCommand: npm run migrate -w apps/api && npm run seed -w apps/api && node apps/api/dist/main.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "true"
+      - key: RATE_LIMIT_ENABLED
+        value: "true"
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sekka-db
+          property: connectionString
+      - key: CORS_ORIGINS
+        value: https://design-sigma-lemon.vercel.app
+
+databases:
+  - name: sekka-db
+    databaseName: sekka
+    user: sekka
+    plan: free
+    region: frankfurt
+    postgresMajorVersion: "16"
