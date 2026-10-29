@@ -240,4 +240,42 @@ export class AdminService {
       throw forbidden('Only a super administrator can manage staff accounts');
     }
   }
+    async listPendingVehicles(pageSize = 20, offset = 0) {
+    const countResult = await this.db.query(
+      `
+      SELECT COUNT(*)::int AS total
+      FROM vehicles
+      WHERE verification_status = 'pending_review'
+      `,
+    );
+
+    const result = await this.db.query(
+      `
+      SELECT
+        v.id,
+        v.owner_id AS "ownerId",
+        v.make,
+        v.model,
+        v.color,
+        v.seats,
+        v.plate_number AS "plateNumber",
+        v.verification_status AS "verificationStatus",
+        v.created_at AS "createdAt",
+        u.email AS "ownerEmail",
+        p.full_name AS "ownerName"
+      FROM vehicles v
+      JOIN users u ON u.id = v.owner_id
+      LEFT JOIN user_profiles p ON p.user_id = u.id
+      WHERE v.verification_status = 'pending_review'
+      ORDER BY v.created_at ASC
+      LIMIT $1 OFFSET $2
+      `,
+      [pageSize, offset],
+    );
+
+    return {
+      total: countResult.rows[0]?.total ?? 0,
+      items: result.rows,
+    };
+  }
 }
