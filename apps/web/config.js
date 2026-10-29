@@ -1,3 +1,4 @@
-/* Set this to the public URL of your deployed API, including /api/v1.
-   Local development default: http://localhost:4000/api/v1 */
-window.CARPOOL_API_BASE = window.CARPOOL_API_BASE || 'http://localhost:4000/api/v1';
+
+/* Public URL of the deployed Carpool API */
+window.CARPOOL_API_BASE =
+  'https://carpoolegypt-tc936aye.back4.app/api/v1';
