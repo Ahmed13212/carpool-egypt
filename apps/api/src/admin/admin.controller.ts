@@ -156,4 +156,3 @@ export class AdminController {
     return this.admin.updateSetting(u, key, b.value, req.ip);
   }
 }
-```
